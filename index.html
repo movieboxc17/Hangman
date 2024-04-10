@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hangman Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: navy;
+    }
+
+    #wordToGuess {
+      margin-bottom: 20px;
+      font-size: 24px;
+      letter-spacing: 10px;
+    }
+
+    #message {
+      margin-top: 10px;
+      color: red;
+    }
+
+    .input-container {
+      margin-top: 10px;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 8px 20px;
+      margin-left: 10px;
+      background-color: navy;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #001f3f;
+    }
+
+    #incorrectGuesses {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hangman Game</h1>
+    <div id="wordToGuess"></div>
+    <p>Guess a letter:</p>
+    <div class="input-container">
+      <input type="text" id="guessInput" maxlength="1">
+      <button onclick="checkLetter()">Guess</button>
+      <button onclick="randomizeWord()">Randomize Word</button>
+    </div>
+    <p id="message"></p>
+    <p>Incorrect guesses: <span id="incorrectGuesses"></span></p>
+  </div>
+
+  <script>
+    const words = ['hangman', 'javascript', 'programming', 'developer', 'computer', 'internet', 'algorithm', 'python', 'software', 'function', 'variable', 'database', 'interface', 'framework', 'frontend', 'backend', 'mobile', 'application', 'security', 'authentication', 'authorization'];
+    let chosenWord = pickRandomWord();
+    let guessedWord = '_'.repeat(chosenWord.length);
+    let remainingAttempts = 10; // Changed number of attempts to 10
+    let incorrectGuesses = [];
+    const wordToGuessElement = document.getElementById('wordToGuess');
+    const messageElement = document.getElementById('message');
+    const incorrectGuessesElement = document.getElementById('incorrectGuesses');
+
+    function pickRandomWord() {
+      return words[Math.floor(Math.random() * words.length)];
+    }
+
+    function displayWord() {
+      wordToGuessElement.textContent = guessedWord.split('').join(' ');
+    }
+
+    function checkLetter() {
+      const guessInput = document.getElementById('guessInput');
+      const guess = guessInput.value.toLowerCase();
+      guessInput.value = '';
+
+      if (guess.length !== 1 || !/[a-z]/.test(guess)) {
+        messageElement.textContent = 'Please enter a single letter from A to Z.';
+        return;
+      }
+
+      if (guessedWord.includes(guess) || incorrectGuesses.includes(guess)) {
+        messageElement.textContent = 'You have already guessed that letter.';
+        return;
+      }
+
+      if (chosenWord.includes(guess)) {
+        for (let i = 0; i < chosenWord.length; i++) {
+          if (chosenWord[i] === guess) {
+            guessedWord = guessedWord.substr(0, i) + guess + guessedWord.substr(i + 1);
+          }
+        }
+      } else {
+        remainingAttempts--;
+        incorrectGuesses.push(guess);
+        incorrectGuessesElement.textContent = incorrectGuesses.join(', ');
+      }
+
+      displayWord();
+      updateMessage();
+    }
+
+    function randomizeWord() {
+      chosenWord = pickRandomWord();
+      guessedWord = '_'.repeat(chosenWord.length);
+      remainingAttempts = 10; // Reset remaining attempts when randomizing word
+      incorrectGuesses = [];
+      incorrectGuessesElement.textContent = '';
+      displayWord();
+      messageElement.textContent = '';
+    }
+
+    function updateMessage() {
+      if (guessedWord === chosenWord) {
+        messageElement.textContent = 'Congratulations! You guessed the word correctly!';
+      } else if (remainingAttempts === 0) {
+        messageElement.textContent = 'Game over! The word was: ' + chosenWord;
+      } else {
+        messageElement.textContent = `Remaining attempts: ${remainingAttempts}`;
+      }
+    }
+
+    displayWord();
+  </script>
+</body>
+</html>
